@@ -27,19 +27,44 @@ const Contact = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // For now, we'll just show a success message
-    // In a real implementation, this would connect to your backend
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for reaching out. We'll get back to you within 24 hours.",
-    });
-    
-    // Reset form
-    setFormData({
-      name: "",
-      email: "",
-      subject: "",
-      message: ""
+    // Submit to backend
+    fetch('http://localhost:3001/api/contact', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    })
+    .then(response => response.json())
+    .then(result => {
+      if (result.success) {
+        toast({
+          title: "Message Sent!",
+          description: "Thank you for reaching out. We'll get back to you within 24 hours.",
+        });
+        
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: ""
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "Failed to send message. Please try again.",
+          variant: "destructive",
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Error",
+        description: "Network error. Please try again later.",
+        variant: "destructive",
+      });
     });
   };
 
@@ -202,13 +227,6 @@ const Contact = () => {
                     </Button>
                   </form>
 
-                  <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground">
-                      <strong>Note:</strong> This is a demo contact form. To enable actual email 
-                      functionality, you'll need to connect to a backend service like Supabase 
-                      using the green button in the top-right corner of Lovable.
-                    </p>
-                  </div>
                 </CardContent>
               </Card>
             </div>
